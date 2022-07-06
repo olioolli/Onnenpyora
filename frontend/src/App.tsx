@@ -74,10 +74,20 @@ const PlayerSelectView = () => {
 
 }
 
+const Image = styled.img`
+border: 2px solid #54575b;
+border-radius: 2px;
+`;
+
 const LoginMainDiv = styled.div`
+width: 100%;
+height: 100%;
 display: flex;
 flex-direction: column;
 align-items: center;
+justify-content: center;
+background-image: url('https://www.idealista.fi/sarasieppi/wp-content/uploads/sites/30/2018/03/OnnenpyA%CC%82rn%CC%83_studio-600x400.jpg');
+background-size: cover;
 `;
 
 const TitleH2 = styled.h2`
@@ -122,7 +132,7 @@ const PlayerSelectContainer = styled.div`
     flex-direction: column;
     align-content: center;
     align-items: center;
-    background: #cf181f;
+    background: #506aa3b8;
     padding: 14px;
     border-radius: 6px;
     width: 301px;

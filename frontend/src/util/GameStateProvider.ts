@@ -41,7 +41,7 @@ export const useGameState = () => {
 
             for (var i = idx; i < idx + word.length; i++) {
                 if (gameState.letterRevealState[i] === LetterRevealState.UNREVEALED) {
-                    const points = letterPoints[gameState.currentSentence[i]];
+                    const points = letterPoints[gameState.currentSentence.text[i]];
                     totalPoints += points;
                     newLetterRevealState[i] = LetterRevealState.REVEALED_LAST_TURN;
                 }

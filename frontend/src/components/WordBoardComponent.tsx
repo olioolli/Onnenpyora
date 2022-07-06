@@ -48,14 +48,21 @@ export const WordBoardComponent = () => {
             </LetterContainer>
             <Image src={currentSentence.imageSrc}></Image>
             <LetterSelectComponent revealWord={revealWord}/>
-            {
-                gameState.playerStates.map( playerState => (
-                    <PlayerInfo isActive={false} name={playerState.name} points={playerState.points} ></PlayerInfo>   
-                ))
-            }
+            <PlayerInfoContainer>
+                {
+                    gameState.playerStates.map( playerState => (
+                        <PlayerInfo isActive={false} name={playerState.name} points={playerState.points} ></PlayerInfo>   
+                    ))
+                }
+            </PlayerInfoContainer>
         </MainDiv>
     );
 }
+
+const PlayerInfoContainer = styled.div`
+    position: fixed;
+    right: 30px;
+`;
 
 const Image = styled.img`
     width: 300px;
