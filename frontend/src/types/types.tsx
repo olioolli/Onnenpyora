@@ -21,6 +21,7 @@ letterPoints["S"] = 3;
 letterPoints["T"] = 3;
 letterPoints["U"] = 5;
 letterPoints["V"] = 5;
+letterPoints["W"] = 10;
 letterPoints["X"] = 10;
 letterPoints["Y"] = 3;
 letterPoints["Z"] = 10;

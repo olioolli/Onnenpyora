@@ -123,15 +123,25 @@ app.get("/reset", function (req, res) {
     res.send("Game reset");
 });
 app.get("/next", function (req, res) {
-    var playerName = gameState.turnOfPlayer;
-    gameState.currentSentence = (0, dataFetcher_1.getNextSentence)();
-    gameState.letterRevealState = (0, dataFetcher_1.createInitialLetterRevealState)(gameState.currentSentence.text);
-    gameState.turnOfPlayer = playerName;
+    nextSentence();
     res.send("Next");
+});
+app.get("/topic", function (req, res) {
+    var url = req.query.url;
+    (0, dataFetcher_1.retrieveSentences)(url);
+    nextSentence();
+    res.send("Topic changed");
 });
 app.get("/sentences", function (req, res) {
     res.send((0, dataFetcher_1.getSentences)());
 });
+var nextSentence = function () {
+    var playerName = gameState.turnOfPlayer;
+    gameState.currentSentence = (0, dataFetcher_1.getNextSentence)();
+    gameState.letterRevealState = (0, dataFetcher_1.createInitialLetterRevealState)(gameState.currentSentence.text);
+    gameState.turnOfPlayer = playerName;
+    broadCastGameState();
+};
 var addUser = function (username) {
     if (getUser(username))
         return true;

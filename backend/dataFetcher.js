@@ -28,12 +28,17 @@ var retrieveSentences = function (url) {
         var ol = dom.window.document.getElementsByTagName("ol")[0];
         var lis = ol.getElementsByTagName("li");
         for (var i = 0; i < lis.length; i++) {
-            var a = lis[i].getElementsByTagName("a")[0];
-            var img = lis[i].getElementsByTagName("img")[0];
-            sentences.push({
-                text: decodeSentenceText(a.text.toUpperCase()),
-                imageSrc: img.src
-            });
+            try {
+                var a = lis[i].getElementsByTagName("a")[0];
+                var img = lis[i].getElementsByTagName("img")[0];
+                sentences.push({
+                    text: decodeSentenceText(a.text.toUpperCase()),
+                    imageSrc: img ? img.src : ''
+                });
+            }
+            catch (e) {
+                console.log("Failed to parse a sentence: " + e);
+            }
         }
     })
         .catch(function (err) {

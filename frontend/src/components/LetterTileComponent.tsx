@@ -12,7 +12,7 @@ let idCounter = 0;
 export const LetterTileComponent = (props : LetterProps) => {
 
     let borderstyle = props.isLastRevealed ? {border: "2px solid #12ff45"} : {};
-    const style = { ...borderstyle, background: props.letter === '' ? "yellow" : "white" };
+    const style = { ...borderstyle, background: props.letter === '' ? "yellow" : props.letter === ' ' ? "#d7bebe" : "white" };
 
     return (
         <div style={ style } className={"letterTile"} >

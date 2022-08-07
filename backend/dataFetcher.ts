@@ -19,13 +19,18 @@ export const retrieveSentences = (url = defaultUrl) => {
         let lis = ol.getElementsByTagName("li");
         for(let i = 0; i < lis.length; i++) {
 
-            let a = lis[i].getElementsByTagName("a")[0];
-            let img = lis[i].getElementsByTagName("img")[0];
+            try {
+                let a = lis[i].getElementsByTagName("a")[0];
+                let img = lis[i].getElementsByTagName("img")[0];
 
-            sentences.push({
-                text: decodeSentenceText(a.text.toUpperCase()),
-                imageSrc: img.src
-            });
+                sentences.push({
+                    text: decodeSentenceText(a.text.toUpperCase()),
+                    imageSrc: img? img.src : ''
+                });
+            }
+            catch(e) {
+                console.log("Failed to parse a sentence: "+e);
+            }
         }
     })
     .catch(function(err){
