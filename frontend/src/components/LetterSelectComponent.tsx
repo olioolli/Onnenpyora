@@ -42,7 +42,7 @@ const LetterSelectMainDiv = styled.div`
     margin-top:25px;
 `;
 
-const WordInput = styled.textarea`
+const WordInput = styled.input`
     height: 60px;
     background: #0c2626;
     color: white;
