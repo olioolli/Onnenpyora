@@ -1,45 +1,91 @@
-import rp from 'request-promise';
-import jsdom from 'jsdom';
 import { LetterRevealState, Sentence } from './types';
-import {decode} from 'html-entities';
+import { decode } from 'html-entities';
+import puppeteer from 'puppeteer';
 
 const defaultUrl = 'https://yle.fi/uutiset/18-220306';
-const { JSDOM } = jsdom;
 
-let sentences : Sentence[] = [];
+let sentences: Sentence[] = [];
 
-export const retrieveSentences = (url = defaultUrl) => {
+export const retrieveSentences = async (url = defaultUrl) => {
 
-    rp(url).then(function(html){
-        const dom = new JSDOM(html);
-        sentences = [];
+    await parseYleHTMLPuppeteer(url);
+}
 
-        let ol = dom.window.document.getElementsByTagName("ol")[0];
+const parseYleHTMLPuppeteer = async (url: string) => {
+    const browser = await puppeteer.launch({args: ["--disable-setuid-sandbox"],
+        'ignoreHTTPSErrors': true});
+    const page = await browser.newPage();
+    console.log("Loading page: "+url);
+    await page.goto(url, {
+        waitUntil: 'networkidle2',
+    });
 
-        let lis = ol.getElementsByTagName("li");
-        for(let i = 0; i < lis.length; i++) {
+    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
 
+    await page.evaluate(() => {
+        window.scrollTo(0,2000);
+    });
+
+    await page.evaluate(() => {
+        window.scrollTo(0,4000);
+    });
+
+    await page.evaluate(() => {
+        window.scrollTo(0,6000);
+    });
+
+    await page.evaluate(() => {
+        window.scrollTo(0,8000);
+    });
+
+    await page.evaluate(() => {
+        window.scrollTo(0,10000);
+    });
+
+    await page.waitForTimeout(1000);
+    console.log("Loading sentences..");
+    //await page.$$eval('body', t => { window.scrollTo(0,1000000) });
+    const sentencesJson = await page.$$eval('ol', ols => {
+
+        const retArr = [];
+        const lis = ols[0].getElementsByTagName("li");
+        for (let i = 0; i < lis.length; i++) {
             try {
                 let a = lis[i].getElementsByTagName("a")[0];
                 let img = lis[i].getElementsByTagName("img")[0];
 
-                sentences.push({
-                    text: decodeSentenceText(a.text.toUpperCase()),
-                    imageSrc: img? img.src : ''
-                });
+                if( img )
+                    retArr.push({
+                        text: a.text.toUpperCase(),
+                        imageSrc: img.src
+                    });
             }
-            catch(e) {
-                console.log("Failed to parse a sentence: "+e);
+            catch (e) {
+                console.log("Failed to parse a sentence: " + e);
             }
         }
-    })
-    .catch(function(err){
-        console.log("Failed to get sentences: "+err);
+
+        return JSON.stringify(retArr);
     });
+
+    await browser.close();
+
+    const sentenceArr = JSON.parse(sentencesJson);
+    sentences = parsePuppeteerSentences(sentenceArr);
+    console.log("Amount of sentences: "+sentenceArr.length);
 }
 
-const decodeSentenceText = (text : string ) => {
-    return Array.from(decode(text)).filter( (char) => char.charCodeAt(0) !== 173 ).join('');
+const parsePuppeteerSentences = (sentenceArr : Sentence[]) => {
+    return sentenceArr.map( sentence => (
+        {
+            text : decodeSentenceText(sentence.text.toUpperCase()),
+            imageSrc: sentence.imageSrc
+        }
+    ));
+}
+
+const decodeSentenceText = (text: string) => {
+    return Array.from(decode(text)).filter((char) => char.charCodeAt(0) !== 173).join('');
 }
 
 const isSpecialLetter = (letter: string) => {
@@ -48,8 +94,8 @@ const isSpecialLetter = (letter: string) => {
 
 export const createInitialLetterRevealState = (sencence: string) => {
     const revealStates = [];
-    for(let i = 0; i < sencence.length; i++)
-        if( isSpecialLetter(sencence.charAt(i) ) )
+    for (let i = 0; i < sencence.length; i++)
+        if (isSpecialLetter(sencence.charAt(i)))
             revealStates.push(LetterRevealState.REVEALED);
         else
             revealStates.push(LetterRevealState.UNREVEALED);
@@ -60,9 +106,9 @@ let sentenceIdx = 0;
 
 export const getNextSentence = () => {
     sentenceIdx++;
-    if( sentenceIdx >= sentences.length )
-        return {text: "", imageSrc: ""};
-    
+    if (sentenceIdx >= sentences.length)
+        return { text: "", imageSrc: "" };
+
     return sentences[sentenceIdx];
 }
 
