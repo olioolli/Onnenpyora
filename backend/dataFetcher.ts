@@ -12,7 +12,7 @@ export const retrieveSentences = async (url = defaultUrl) => {
 }
 
 const parseYleHTMLPuppeteer = async (url: string) => {
-    const browser = await puppeteer.launch({args: ["--disable-setuid-sandbox"],
+    const browser = await puppeteer.launch({args: ["--no-sandbox","--disable-setuid-sandbox"],
         'ignoreHTTPSErrors': true});
     const page = await browser.newPage();
     console.log("Loading page: "+url);
