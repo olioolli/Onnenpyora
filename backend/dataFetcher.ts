@@ -13,7 +13,7 @@ export const retrieveSentences = async (url = defaultUrl) => {
 
 const parseYleHTMLPuppeteer = async (url: string) => {
     const browser = await puppeteer.launch({args: ["--no-sandbox","--disable-setuid-sandbox"],
-        'ignoreHTTPSErrors': true});
+        'ignoreHTTPSErrors': true, 'headless' : true});
     const page = await browser.newPage();
     console.log("Loading page: "+url);
     await page.goto(url, {
@@ -44,32 +44,31 @@ const parseYleHTMLPuppeteer = async (url: string) => {
 
     await page.waitForTimeout(1000);
     console.log("Loading sentences..");
-    //await page.$$eval('body', t => { window.scrollTo(0,1000000) });
-    const sentencesJson = await page.$$eval('ol', ols => {
-
+    const sentencesJson = await page.evaluate( () => {
         const retArr = [];
-        const lis = ols[0].getElementsByTagName("li");
-        for (let i = 0; i < lis.length; i++) {
-            try {
-                let a = lis[i].getElementsByTagName("a")[0];
-                let img = lis[i].getElementsByTagName("img")[0];
+        const main = document.getElementsByTagName("main")[0];
+        const h3s = main.getElementsByTagName("h3");
 
-                if( img )
+        for(let i = 0; i < h3s.length; i++ ) {
+            try {
+                const img = h3s[i].parentElement?.parentElement?.getElementsByTagName("img")[0];
+                if( img ) {
                     retArr.push({
-                        text: a.text.toUpperCase(),
+                        text : h3s[i].innerText,
                         imageSrc: img.src
                     });
+                }
             }
-            catch (e) {
+            catch(e) { 
                 console.log("Failed to parse a sentence: " + e);
             }
         }
-
-        return JSON.stringify(retArr);
+        return JSON.stringify(retArr); 
     });
 
     await browser.close();
 
+    
     const sentenceArr = JSON.parse(sentencesJson);
     sentences = parsePuppeteerSentences(sentenceArr);
     console.log("Amount of sentences: "+sentenceArr.length);
